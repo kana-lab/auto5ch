@@ -1,8 +1,13 @@
 import selenium
 from typing import Optional
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 from latest_user_agents import get_latest_user_agents
 
 
@@ -26,12 +31,22 @@ def write_thread(
         elem.send_keys(mail)
 
     # 書きこみボタンを押す
-    elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
+    # elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
+    elem = WebDriverWait(driver, 10).until(
+        expected_conditions.element_to_be_clickable((
+            By.XPATH, '//input[@name="submit"]'
+        ))
+    )
     elem.click()
 
     # Cookieをセットしてない場合は承諾ボタンを押す
     if "書きこみ＆クッキー確認" in driver.page_source:
-        elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
+        # elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
+        elem = WebDriverWait(driver, 10).until(
+            expected_conditions.element_to_be_clickable((
+                By.XPATH, '//input[@name="submit"]'
+            ))
+        )
         elem.click()
 
     if driver.title == "ＥＲＲＯＲ！":
@@ -42,18 +57,23 @@ def write_thread(
 
 
 def setup_driver():
-    ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36 Edg/99.0.1150.36'
-    # ua_list = get_latest_user_agents()
-    # ua = ""
-    # for ua_ in ua_list:
-    #     if "Windows" in ua_ and "Chrome" in ua_:
-    #         ua = ua_
-    #         break
+    ua_list = get_latest_user_agents()
+    ua = ""
+    for ua_ in ua_list:
+        if "Windows" in ua_ and "Chrome" in ua_:
+            ua = ua_
+            break
 
     options = webdriver.ChromeOptions()
     options.add_argument('--user-agent=' + ua)
+    # ref: https://stackoverflow.com/questions/73930313/python-selenium-button-click-causes-browser-console-error
+    options.add_argument('--disable-blink-features=AutomationControlled')
 
-    return webdriver.Chrome(chrome_options=options)
+    # ref: https://stackoverflow.com/questions/46322165/dont-wait-for-a-page-to-load-using-selenium-in-python/46339092#46339092
+    caps = DesiredCapabilities().CHROME
+    caps['pageLoadStrategy'] = 'eager'
+
+    return webdriver.Chrome(options=options, desired_capabilities=caps)
 
 
 if __name__ == '__main__':
