@@ -31,17 +31,16 @@ def write_thread(
         elem.send_keys(mail)
 
     # 書きこみボタンを押す
-    # elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
     elem = WebDriverWait(driver, 10).until(
         expected_conditions.element_to_be_clickable((
             By.XPATH, '//input[@name="submit"]'
         ))
     )
-    elem.click()
+    # ref: https://office54.net/python/scraping/selenium-click-exception
+    driver.execute_script("arguments[0].click();", elem)
 
     # Cookieをセットしてない場合は承諾ボタンを押す
     if "書きこみ＆クッキー確認" in driver.page_source:
-        # elem = driver.find_element(By.XPATH, '//input[@name="submit"]')
         elem = WebDriverWait(driver, 10).until(
             expected_conditions.element_to_be_clickable((
                 By.XPATH, '//input[@name="submit"]'
@@ -77,5 +76,9 @@ def setup_driver():
 
 
 if __name__ == '__main__':
+    import time
+
     driver = setup_driver()
-    print(write_thread(driver, 'mi', 'news4vip', '1671786885', '書きこみてすつ', '>>1', 'mail address'))
+    print(write_thread(driver, 'mi', 'news4vip', '1671786885', 'Cookieのテスト1', '>>1', 'mail address'))
+    time.sleep(60)
+    print(write_thread(driver, 'mi', 'news4vip', '1671786885', 'Cookieのテスト2', '>>1', 'mail address'))
