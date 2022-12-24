@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <base href="http://localhost:5000/">
+</head>
+<body>
+<form name="registerForm">
+    <label>
+        Server: <input type="text" name="server" value="mi"/>
+    </label><br>
+    <label>
+        Board: <input type="text" name="board" value="news4vip"/>
+    </label><br>
+    <label>
+        Thread: <input type="text" name="thread" id="thread"/>
+    </label><br>
+    <label>
+        Cycle: <input type="text" name="cycle"/>
+    </label><br>
+    <label>
+        Name: <input type="text" name="name"/>
+    </label><br>
+    <label>
+        Mail: <input type="text" name="mail"/>
+    </label><br>
+    <label>
+        Body: <textarea name="body"></textarea>
+    </label><br>
+    <button type="submit">register</button>
+</form>
+<form method="post" action="/stop/">
+    <button type="submit">stop</button>
+</form>
+<script>
+    const form = document.registerForm
+    window.addEventListener("load", () => {
+        function sendData() {
+            const data = new FormData(form)
+
+            if (form.cycle.value !== "") {
+                data.append('cycle', form.cycle.value)
+            }
+            if (form.name.value !== "") {
+                data.append('name', form.name.value)
+            }
+            if (form.mail.value !== "") {
+                data.append('mail', form.mail.value)
+            }
+            if (form.body.value !== "") {
+                data.append('body', form.body.value)
+            }
+            const url = document.baseURI + form.server.value + "/"
+                + form.board.value + "/" + form.thread.value + "/"
+
+            fetch(url, {
+                method: 'post',
+                body: data,
+                mode: 'cors',
+            })
+                .then(r => r.text())
+                .then(text => confirm(text))
+        }
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault()
+            sendData()
+        })
+    })
+</script>
+</body>
+</html>
