@@ -13,10 +13,11 @@ driver = setup_driver()
 server, board, thread = None, None, None
 body, name, mail = None, None, None
 cycle, count = None, 0
+status, err_str = None, None
 
 
 def write_loop():
-    global body, count
+    global body, count, status, err_str
 
     while True:
         if body is not None:
@@ -25,9 +26,9 @@ def write_loop():
             else:
                 count = cycle
                 try:
-                    write_thread(driver, server, board, thread, body, name, mail)
-                except:
-                    pass
+                    status, err_str = write_thread(driver, server, board, thread, body, name, mail)
+                except Exception as e:
+                    status, err_str = False, f"internal server error: {e}"
 
                 if cycle is None:
                     body = None
@@ -39,7 +40,6 @@ def write_loop():
 def stop():
     global body
     body = None
-    print("stop request.")
     return "ok", 200
 
 
@@ -48,16 +48,19 @@ def register(server_, board_, thread_):
     global server, board, thread
     global body, name, mail
     global cycle, count
+    global status
     server, board, thread = server_, board_, thread_
-    body = request.form.get('body', type=str)
     name = request.form.get('name', type=str)
     mail = request.form.get('mail', type=str)
     cycle = request.form.get('cycle', type=int)
     count = 0
-    print(f"register request at {server}/{board}/{thread}:")
-    print(f"name: {name}, mail: {mail}, body: {body}")
-    print(f"cycle: {cycle}, count: {count}")
-    return "ok", 200
+    status = None
+    body = request.form.get('body', type=str)
+
+    while status is None:
+        time.sleep(0.5)
+
+    return f"status: {status}\n{err_str}", 200
 
 
 @app.route('/')

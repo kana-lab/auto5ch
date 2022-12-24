@@ -50,6 +50,7 @@ def write_thread(
         elem = driver.find_element(By.XPATH, '/html/body/font[1]/b')
         return False, elem.text
     else:
+        driver.get("https://www.google.com")
         return True, None
 
 
@@ -69,6 +70,8 @@ def setup_driver():
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-setuid-sandbox")
+    # ref: https://stackoverflow.com/questions/53902507/unknown-error-session-deleted-because-of-page-crash-from-unknown-error-cannot
+    options.add_argument('--disable-dev-shm-usage')
 
     # ref: https://stackoverflow.com/questions/46322165/dont-wait-for-a-page-to-load-using-selenium-in-python/46339092#46339092
     caps = DesiredCapabilities().CHROME
