@@ -67,6 +67,10 @@ def setup_driver():
     options.add_argument('--user-agent=' + ua)
     # ref: https://stackoverflow.com/questions/73930313/python-selenium-button-click-causes-browser-console-error
     options.add_argument('--disable-blink-features=AutomationControlled')
+    # ref: https://sushiringblog.com/chromedriver-error
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument("--disable-setuid-sandbox")
 
     # ref: https://stackoverflow.com/questions/46322165/dont-wait-for-a-page-to-load-using-selenium-in-python/46339092#46339092
     caps = DesiredCapabilities().CHROME
