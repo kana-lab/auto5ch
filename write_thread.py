@@ -1,5 +1,6 @@
 from typing import Optional
 
+# from seleniumwire import webdriver
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -54,6 +55,11 @@ def write_thread(
         return True, None
 
 
+def interceptor_(req):
+    if req.path.endswith(('.png', '.jpg', '.gif')):
+        req.abort()
+
+
 def setup_driver():
     ua_list = get_latest_user_agents()
     ua = ""
@@ -72,12 +78,31 @@ def setup_driver():
     options.add_argument("--disable-setuid-sandbox")
     # ref: https://stackoverflow.com/questions/53902507/unknown-error-session-deleted-because-of-page-crash-from-unknown-error-cannot
     options.add_argument('--disable-dev-shm-usage')
+    # ref: https://groups.google.com/a/chromium.org/g/headless-dev/c/f_tQUs__Yqw
+    options.add_argument("--disable-background-networking")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-sync")
+    options.add_argument("--disable-translate")
+    options.add_argument("--hide-scrollbars")
+    options.add_argument("--metrics-recording-only")
+    options.add_argument("--mute-audio")
+    options.add_argument("--no-first-run")
+    options.add_argument("--safebrowsing-disable-auto-update")
+    options.add_argument("--ignore-ssl-errors")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--ignore-certificate-errors-spki-list")
+    # ref: https://stackoverflow.com/questions/48773031/how-to-prevent-chrome-headless-from-loading-images
+    options.add_argument("--blink-settings=imagesEnabled=false")
 
     # ref: https://stackoverflow.com/questions/46322165/dont-wait-for-a-page-to-load-using-selenium-in-python/46339092#46339092
     caps = DesiredCapabilities().CHROME
     caps['pageLoadStrategy'] = 'eager'
 
-    return webdriver.Chrome(options=options, desired_capabilities=caps)
+    driver_ = webdriver.Chrome(options=options, desired_capabilities=caps)
+    # ref: https://www.zacoding.com/post/selenium-ad-block/
+    # driver_.request_interceptor = interceptor_
+
+    return driver_
 
 
 if __name__ == '__main__':
